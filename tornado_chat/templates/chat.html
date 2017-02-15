@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <style type="text/css">
+        #chatbox {
+            width: 100%;
+            background: black;
+            color: white;
+        }
+
+        .from {
+            color: red;
+            padding-right: 5px;
+        }
+    </style>
+</head>
+<body>
+<div id="chatbox">
+
+</div>
+<form action="javascript:send();">
+    <input type="text" id="msg" name="msg"/>
+    <input type="submit"/>
+</form>
+<script type="text/javascript">
+    var ws = new WebSocket("ws://localhost:8888/socket");
+    var messageCount = 0;
+    ws.onopen = function () {
+        ws.send("has joined the conversation");
+    };
+    ws.onmessage = function (evt) {
+        messageCount += 1;
+        var json = JSON.parse(evt.data);
+        var chatbox = document.getElementById("chatbox");
+        chatbox.innerHTML += '<div class="message" id="message' + messageCount + '"><span class="from">' + json['from'] + '</span>' + '<span class="content">' + json['message'] + '</span></div>';
+    };
+    function send() {
+        var msgbox = document.getElementById("msg");
+        ws.send(msgbox.value);
+        var chatbox = document.getElementById("chatbox");
+        chatbox.innerHTML += '<div class="message" id="message' + messageCount + '"><span class="from">' + "Me" + '</span>' + '<span class="content">' + msgbox.value + '</span></div>';
+        msgbox.value = "";
+
+    }
+</script>
+</body>
+</html>
